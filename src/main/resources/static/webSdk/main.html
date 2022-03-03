@@ -1,128 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <!-- 导入样式 -->
-    <link rel="stylesheet" href="//unpkg.com/element-plus/dist/index.css" />
-    <!-- 导入 Vue 3 -->
-    <script src="//unpkg.com/vue@next"></script>
-    <!-- 导入组件库 -->
-    <script src="//unpkg.com/element-plus"></script>
+<meta charset="utf-8" />
+<title>WebSocket Test</title>
+<script language="javascript"type="text/javascript">
+    var wsUri ="ws://localhost:8080/scanDaemon";
+    var output;
 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <script src="https://unpkg.com/vue@next"></script>
-    <!-- import CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
-    <!-- import JavaScript -->
-    <script src="https://unpkg.com/element-plus"></script>
-</head>
-<body>
-<div id="app">
-<div class="common-layout">
-        <el-container>
-            <el-header>
-                <el-button>{{ '扫描'}}</el-button>
-                <el-button>{{ '扫描设置'}}</el-button>
-                <el-button>{{ '扫描多页PDF'}}</el-button>
-                <el-button>{{ '上传'}}</el-button>
+    function init() {
+        output = document.getElementById("output");
+        testWebSocket();
+    }
 
-                <el-button>{{ '图像裁剪'}}</el-button>
-                <el-button>{{ '图像删除'}}</el-button>
-                <el-button>{{ '图像旋转'}}</el-button>
+    function testWebSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function(evt) {
+            onOpen(evt)
+        };
+        websocket.onclose = function(evt) {
+            onClose(evt)
+        };
+        websocket.onmessage = function(evt) {
+            onMessage(evt)
+        };
+        websocket.onerror = function(evt) {
+            onError(evt)
+        };
+    }
 
-                <el-button>{{ '授权'}}</el-button>
-            </el-header>
+    function onOpen(evt) {
+        writeToScreen("CONNECTED");
+        doSend("WebSocket rocks");
+    }
 
-        </el-container>
+    function onClose(evt) {
+        writeToScreen("DISCONNECTED");
+    }
 
-</div>
+    function onMessage(evt) {
+        writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>');
+        websocket.close();
+    }
 
+    function onError(evt) {
+        writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data);
+    }
 
-</div>
-<script lang="ts">
-    const App = {
-        data() {
-            return {
-                message: "Hello 扫描仪",
-            };
-        },
-    };
-    const app = Vue.createApp(App);
-    app.use(ElementPlus);
-    app.mount("#app");
+    function doSend(message) {
+        writeToScreen("SENT: " + message);
+        websocket.send(message);
+    }
 
+    function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+    }
 
-    const fits = ['fill', 'contain', 'cover', 'none', 'scale-down']
-    const url =
-        'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg'
-
+    window.addEventListener("load", init, false);
 </script>
-
-<style scoped>
-    .demo-image .block {
-        padding: 30px 0;
-        text-align: center;
-        border-right: solid 1px var(--el-border-color-base);
-        display: inline-block;
-        width: 20%;
-        box-sizing: border-box;
-        vertical-align: top;
-    }
-    .demo-image .block:last-child {
-        border-right: none;
-    }
-    .demo-image .demonstration {
-        display: block;
-        color: var(--el-text-color-secondary);
-        font-size: 14px;
-        margin-bottom: 20px;
-    }}
-
-
-
-
-
-
-    .common-layout .el-header,
-    .common-layout .el-footer {
-        background-color: #b3c0d1;
-        color: var(--el-text-color-primary);
-        text-align: center;
-        line-height: 60px;
-    }
-    .common-layout .el-footer {
-        line-height: 60px;
-    }
-
-    .common-layout .el-aside {
-        background-color: #d3dce6;
-        color: var(--el-text-color-primary);
-        text-align: center;
-        line-height: 200px;
-    }
-
-    .common-layout .el-main {
-        background-color: #e9eef3;
-        color: var(--el-text-color-primary);
-        text-align: center;
-        line-height: 160px;
-    }
-
-    .common-layout > .el-container {
-        margin-bottom: 40px;
-    }
-
-    .common-layout .el-container:nth-child(5) .el-aside,
-    .common-layout .el-container:nth-child(6) .el-aside {
-        line-height: 260px;
-    }
-
-    .common-layout .el-container:nth-child(7) .el-aside {
-        line-height: 320px;
-    }
-</style>
-
-</body>
-</html>
+<h2>WebSocket Test</h2>
+<div id="output"></div>
